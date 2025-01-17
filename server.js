@@ -21,7 +21,7 @@ var requestHandler = function (req, res) {
       // This bypasses authentication on static files!
       //if (!err) {
       //  return;
-      //}
+      //}/
 
       if (settings.auth) {
         var credentials = auth(req);
