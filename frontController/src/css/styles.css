@@ -1,0 +1,59 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+nav {
+  background-color: #333;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+}
+
+h1,
+h2 {
+  color: #333;
+}
+
+p {
+  color: #555;
+}
+
+.custom-bg {
+  background-color: rgb(77, 135, 134);
+}
+.custom-bg-2 {
+  background-color: rgb(40, 99, 98);
+}
+
+.custom-text-1 {
+  color: #ffffff !important;
+}
+
+.custom-bg-3 {
+  background-color: #217388 !important;
+}
+.custom-bg-4 {
+  --bs-body-bg: #b9b6b4 !important;
+}
