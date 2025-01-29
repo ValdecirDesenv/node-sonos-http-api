@@ -40,10 +40,30 @@ p {
   color: #555;
 }
 
+.custom-bg-offline {
+  background-color: rgb(121, 98, 69);
+}
 .custom-bg {
   background-color: rgb(77, 135, 134);
 }
 .custom-bg-2 {
+  background-color: rgb(40, 99, 98);
+}
+.custom-bg-offline {
+  background-color: rgb(99, 83, 40);
+}
+
+.custom-bg-3 {
+  background-color: #217388 !important;
+}
+.custom-bg-4 {
+  --bs-body-bg: #b9b6b4 !important;
+}
+
+.custom-bg-offline {
+  background-color: rgb(126, 52, 30);
+}
+.custom-bg-onLine {
   background-color: rgb(40, 99, 98);
 }
 
@@ -52,11 +72,4 @@ p {
 }
 .custom-text-2 {
   color: #fffb28 !important;
-}
-
-.custom-bg-3 {
-  background-color: #217388 !important;
-}
-.custom-bg-4 {
-  --bs-body-bg: #b9b6b4 !important;
 }

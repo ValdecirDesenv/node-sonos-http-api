@@ -25,7 +25,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     {}
   );
 
-  // Use useRef to store the WebSocket instance
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -69,7 +68,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const sendMessage = (msg: any) => {
     const socket = socketRef.current;
 
-    // Ensure the WebSocket is open before sending a message
     if (socket && socket.readyState === WebSocket.OPEN) {
       console.log("Sending message:", msg);
       socket.send(JSON.stringify(msg));
@@ -79,10 +77,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const setToggleState = (groupId: string, state: boolean) => {
-    // Update state locally
     setToggleStates((prev) => ({ ...prev, [groupId]: state }));
 
-    // Sync with front-end server
     fetch("/api/toggle-states", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
