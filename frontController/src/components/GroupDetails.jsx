@@ -1,12 +1,33 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/styles.css";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardBody, CardTitle, CardText, Table } from "reactstrap"; // Bootstrap components
+import ToggleSwitch from "./ToggleSwitch";
+import { useWebSocketContext } from "../hooks/WebSocketProvider";
 
 const GroupDetails = ({ group }) => {
   if (!group || !group.data || group.data.length === 0) {
     return <div>Loading...</div>;
   }
+
+  const [toggleStates, setToggleStates] = useState({});
+
+  const { sendMessage } = useWebSocketContext();
+
+  const setToggleState = (groupId, state) => {
+    // Update state locally
+    setToggleStates((prev) => ({ ...prev, [groupId]: state }));
+
+    // Sync with WebSocket
+    if (sendMessage) {
+      const message = {
+        type: "toggle-update",
+        groupId,
+        state,
+      };
+      sendMessage(message);
+    }
+  };
 
   return (
     <div className="container-fluid my-4 custom-bg">
@@ -15,9 +36,11 @@ const GroupDetails = ({ group }) => {
           const { coordinator, members } = groupItem;
           const { roomName, state } = coordinator;
           const { volume, mute, playbackState } = state;
+          const toggleKey = groupItem.id;
+          const isToggled = groupItem.keepPlaying;
 
           return (
-            <div className="col custom-bg-4" key={groupItem.uuid}>
+            <div className="col custom-bg-4" key={groupItem.id}>
               <Card className="h-100">
                 <CardBody className="custom-bg-2">
                   <CardTitle
@@ -33,8 +56,11 @@ const GroupDetails = ({ group }) => {
                   <CardText className="custom-text-1">
                     <strong>Playback State:</strong> {playbackState}
                   </CardText>
-
-                  {/* Members Table */}
+                  <ToggleSwitch
+                    label="Always Keep Playing"
+                    defaultChecked={isToggled}
+                    onToggle={(newState) => setToggleState(toggleKey, newState)}
+                  />
                   <Table bordered responsive className="custom-bg-3">
                     <thead>
                       <tr className="custom-bg-4">
@@ -74,3 +100,4 @@ const GroupDetails = ({ group }) => {
 };
 
 export default GroupDetails;
+0;

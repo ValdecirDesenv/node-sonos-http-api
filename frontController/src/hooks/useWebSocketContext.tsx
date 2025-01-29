@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface WebSocketContextProps {
   messages: any[];
@@ -17,35 +11,36 @@ const WebSocketContext = createContext<WebSocketContextProps | undefined>(
   undefined
 );
 
-export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
+const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [messages, setMessages] = useState<any[]>([]);
-  const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>(
-    {}
-  );
-
-  // Use useRef to store the WebSocket instance
-  const socketRef = useRef<WebSocket | null>(null);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [toggleStates, setToggleStates] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
+    let ws: WebSocket;
     let retryTimeout: NodeJS.Timeout;
 
     const connectWebSocket = () => {
-      const ws = new WebSocket("ws://localhost:3000");
-      socketRef.current = ws;
+      ws = new WebSocket("ws://localhost:3000");
 
       ws.onopen = () => {
         console.log("WebSocket connection established.");
+        setSocket(ws);
+
+        // Fetch initial toggle states from the front-end server
+        fetch("/api/toggle-states")
+          .then((res) => res.json())
+          .then((data) => setToggleStates(data))
+          .catch((err) => console.error("Error fetching toggle states:", err));
       };
 
       ws.onmessage = (event) => {
         console.log("WebSocket message received:", event.data);
-        try {
-          setMessages((prev) => [...prev, JSON.parse(event.data)]);
-        } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
-        }
+        setMessages((prev) => [...prev, JSON.parse(event.data)]);
       };
 
       ws.onerror = (err) => {
@@ -54,35 +49,27 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
       ws.onclose = () => {
         console.warn("WebSocket connection closed. Retrying...");
-        retryTimeout = setTimeout(connectWebSocket, 3000);
+        retryTimeout = setTimeout(connectWebSocket, 3000); // Retry in 3 seconds
       };
     };
 
     connectWebSocket();
 
     return () => {
-      socketRef.current?.close();
+      ws?.close();
       clearTimeout(retryTimeout);
     };
   }, []);
 
   const sendMessage = (msg: any) => {
-    const socket = socketRef.current;
-
-    // Ensure the WebSocket is open before sending a message
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      console.log("Sending message:", msg);
+    if (socket) {
       socket.send(JSON.stringify(msg));
-    } else {
-      console.error("WebSocket is not open. Message not sent:", msg);
     }
   };
 
   const setToggleState = (groupId: string, state: boolean) => {
-    // Update state locally
     setToggleStates((prev) => ({ ...prev, [groupId]: state }));
 
-    // Sync with front-end server
     fetch("/api/toggle-states", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -99,10 +86,14 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useWebSocketContext = () => {
+const useWebSocketContext = (): WebSocketContextProps => {
   const context = useContext(WebSocketContext);
   if (!context) {
-    throw new Error("useWebSocket must be used within a WebSocketProvider");
+    throw new Error(
+      "useWebSocketContext must be used within a WebSocketProvider"
+    );
   }
   return context;
 };
+
+export { WebSocketProvider, useWebSocketContext };
