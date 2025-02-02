@@ -5,17 +5,23 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import { WebSocketProvider } from "./hooks/WebSocketProvider";
 import Devices from "./pages/Devices";
+import Topbar from "./components/Topbar";
 
 const App: React.FC = () => {
   return (
     <WebSocketProvider>
       <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/devices" element={<Devices />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="d-flex">
+          {/* <Topbar /> */}
+          <Navbar />
+          <div className="flex-grow-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/devices" element={<Devices />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </div>
       </Router>
     </WebSocketProvider>
   );

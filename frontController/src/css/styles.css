@@ -65,8 +65,76 @@ p {
 }
 
 .custom-text-1 {
+  font-size: 0.8rem;
+  font-weight: bold;
   color: #ffffff !important;
+  margin-top: 0;
+  margin-bottom: 0.3rem;
 }
+
 .custom-text-2 {
+  font-size: 0.9rem;
   color: #fffb28 !important;
 }
+.custom-text-3 {
+  font-size: 0.8rem;
+}
+.card {
+  background-color: #5a3d31;
+  color: white;
+  border-radius: 15px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.container.mt-3 {
+  margin-top: 20px; /* Adds space before time selection */
+}
+
+.table {
+  margin-top: 20px; /* Adds space before the table */
+  background-color: #6e4c3e;
+  border-radius: 10px;
+}
+
+th,
+td {
+  text-align: center;
+  padding: 10px;
+  font-size: 1rem;
+  color: white;
+  border: 1px solid #ddd;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-selector {
+  margin-top: 15px;
+}
+
+.small-text {
+  font-size: 80%;
+}
+.scaled-background {
+  width: auto;
+  height: 100px;
+  background-image: url("./public/group-R5.svg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  left: 218px;
+}
+.top-bar-svg {
+  width: auto;
+  height: 200px;
+  background-image: url("./public/group-R5.svg");
+}
+
+/* --bs-gutter-x:2.5rem */

@@ -14,8 +14,10 @@ const GroupDetails = ({ group }) => {
     console.log("GroupDetails: Invalid group type", group);
     return null;
   }
+
   const [offLineData, setOffLineData] = useState("custom-bg");
   const [timeRange, setTimeRange] = useState({ start: "08:00", end: "22:00" });
+  const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
     if (group.offLineData) {
@@ -40,6 +42,22 @@ const GroupDetails = ({ group }) => {
       };
       sendMessage(message);
     }
+  };
+  const handleToggle = (status) => {
+    setIsEnabled(status);
+  };
+
+  const setTimeRangeForGroup = (groupId, start, end) => {
+    setTimeRange((prev) => ({ ...prev, [groupId]: { start, end } }));
+    // if (sendMessage) {
+    //   const message = {
+    //     type: "time-range-update",
+    //     groupId,
+    //     start,
+    //     end,
+    //   };
+    //   sendMessage(message);
+    // }
   };
 
   return (
@@ -79,23 +97,43 @@ const GroupDetails = ({ group }) => {
                     defaultChecked={isToggled}
                     onToggle={(newState) => setToggleState(toggleKey, newState)}
                   />
+                  <ToggleSwitch
+                    label="Audio System"
+                    defaultChecked={isEnabled}
+                    onToggle={handleToggle}
+                  />
+                  {isEnabled && (
+                    <TimeRangeSelector
+                      label="Select Time Range"
+                      defaultStart={timeRange.start}
+                      defaultEnd={timeRange.end}
+                      a
+                      onTimeChange={setTimeRangeForGroup}
+                    />
+                  )}
                   <Table bordered responsive className="custom-bg-3">
                     <thead>
                       <tr className="custom-bg-4">
-                        <th>Room</th>
-                        <th>Volume</th>
-                        <th>Mute</th>
-                        <th>Playback</th>
+                        <th className="custom-text-3">Room</th>
+                        <th className="custom-text-3">Volume</th>
+                        <th className="custom-text-3">Mute</th>
+                        <th className="custom-text-3">Playback</th>
                       </tr>
                     </thead>
-                    <tbody className="custom-bg-4">
+                    <tbody className="custom-bg-4 custom-text-3">
                       {members && members.length > 0 ? (
                         members.map((member) => (
                           <tr key={member.uuid}>
-                            <td>{member.roomName}</td>
-                            <td>{member.state.volume}</td>
-                            <td>{member.state.mute ? "Yes" : "No"}</td>
-                            <td>{member.state.playbackState}</td>
+                            <td className="custom-text-3">{member.roomName}</td>
+                            <td className="custom-text-3">
+                              {member.state.volume}
+                            </td>
+                            <td className="custom-text-3">
+                              {member.state.mute ? "Yes" : "No"}
+                            </td>
+                            <td className="custom-text-3">
+                              {member.state.playbackState}
+                            </td>
                           </tr>
                         ))
                       ) : (
