@@ -10,8 +10,8 @@ const Navbar = () => {
         </Link>
         <ul className="nav flex-column">
           <li className="nav-item">
-            <Link className="nav-link" to="/">
-              Settings 1
+            <Link className="nav-link" to="/devices">
+              Group Devices
             </Link>
           </li>
           <li className="nav-item">

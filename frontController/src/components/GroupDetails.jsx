@@ -17,23 +17,13 @@ const GroupDetails = ({ group }) => {
 
   const [offLineData, setOffLineData] = useState("custom-bg");
   const [timeRange, setTimeRange] = useState({ start: "08:00", end: "22:00" });
-  const [isEnabled, setIsEnabled] = useState(false);
-
-  useEffect(() => {
-    if (group.offLineData) {
-      setOffLineData("custom-bg-offline");
-    }
-  }, []);
-
+  const [isTimeEnabled, setIsTimeEnabled] = useState(false);
   const [toggleStates, setToggleStates] = useState({});
-
   const { sendMessage } = useWebSocketContext();
 
   const setToggleState = (groupId, state) => {
-    // Update state locally
     setToggleStates((prev) => ({ ...prev, [groupId]: state }));
 
-    // Sync with WebSocket
     if (sendMessage) {
       const message = {
         type: "toggle-update",
@@ -42,9 +32,6 @@ const GroupDetails = ({ group }) => {
       };
       sendMessage(message);
     }
-  };
-  const handleToggle = (status) => {
-    setIsEnabled(status);
   };
 
   const setTimeRangeForGroup = (groupId, start, end) => {
@@ -60,6 +47,16 @@ const GroupDetails = ({ group }) => {
     // }
   };
 
+  const handleIsTimeToggleEnable = (status) => {
+    setIsTimeEnabled(status);
+  };
+
+  useEffect(() => {
+    if (group.offLineData) {
+      setOffLineData("custom-bg-offline");
+    }
+  }, []);
+
   return (
     <div className={`container-fluid my-4 custom-bg ${offLineData}`}>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
@@ -74,6 +71,19 @@ const GroupDetails = ({ group }) => {
             : groupItem.offLineZone
             ? "custom-bg-offlineCard"
             : "custom-bg-2";
+
+          const [localTimeRange, setLocalTimeRange] = useState(timeRange);
+          const [localIsTimeEnabled, setLocalIsTimeEnabled] =
+            useState(isTimeEnabled);
+
+          const handleLocalTimeToggle = (status) => {
+            setLocalIsTimeEnabled(status);
+          };
+
+          const handleLocalTimeRangeChange = (start, end) => {
+            setLocalTimeRange({ start, end });
+            setTimeRangeForGroup(toggleKey, start, end);
+          };
 
           return (
             <div className="col custom-bg-4" key={index}>
@@ -99,16 +109,15 @@ const GroupDetails = ({ group }) => {
                   />
                   <ToggleSwitch
                     label="Audio System"
-                    defaultChecked={isEnabled}
-                    onToggle={handleToggle}
+                    defaultChecked={localIsTimeEnabled}
+                    onToggle={handleLocalTimeToggle}
                   />
-                  {isEnabled && (
+                  {localIsTimeEnabled && (
                     <TimeRangeSelector
                       label="Select Time Range"
-                      defaultStart={timeRange.start}
-                      defaultEnd={timeRange.end}
-                      a
-                      onTimeChange={setTimeRangeForGroup}
+                      defaultStart={localTimeRange.start}
+                      defaultEnd={localTimeRange.end}
+                      onTimeChange={handleLocalTimeRangeChange}
                     />
                   )}
                   <Table bordered responsive className="custom-bg-3">
