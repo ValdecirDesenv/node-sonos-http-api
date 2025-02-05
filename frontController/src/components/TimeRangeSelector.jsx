@@ -1,13 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const TimeRangeSelector = ({
   label,
-  defaultStart = "08:00",
-  defaultEnd = "22:00",
+  defaultStart,
+  defaultEnd,
   onTimeChange,
 }) => {
   const [startTime, setStartTime] = useState(defaultStart);
   const [endTime, setEndTime] = useState(defaultEnd);
+
+  // Sync state with new props when they change
+  useEffect(() => {
+    setStartTime(defaultStart);
+  }, [defaultStart]);
+
+  useEffect(() => {
+    setEndTime(defaultEnd);
+  }, [defaultEnd]);
 
   const handleStartTimeChange = (event) => {
     const newStartTime = event.target.value;

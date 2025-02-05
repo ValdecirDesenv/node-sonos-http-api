@@ -11,8 +11,9 @@ const App: React.FC = () => {
   return (
     <WebSocketProvider>
       <Router>
+        <Topbar />
+
         <div className="d-flex">
-          {/* <Topbar /> */}
           <Navbar />
           <div className="flex-grow-1">
             <Routes>

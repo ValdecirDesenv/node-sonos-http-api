@@ -5,9 +5,7 @@ import "./css/index.css";
 import { WebSocketProvider } from "./hooks/WebSocketProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <WebSocketProvider>
-      <App />
-    </WebSocketProvider>
-  </React.StrictMode>
+  <WebSocketProvider>
+    <App />
+  </WebSocketProvider>
 );

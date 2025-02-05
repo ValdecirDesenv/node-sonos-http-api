@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/styles.css";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import TimeRangeSelector from "./TimeRangeSelector";
 import { Card, CardBody, CardTitle, CardText, Table } from "reactstrap"; // Bootstrap components
 import ToggleSwitch from "./ToggleSwitch";
@@ -10,45 +10,59 @@ const GroupDetails = ({ group }) => {
   if (!group || !group.data || group.data.length === 0) {
     return <div>Loading...</div>;
   }
-  if (group.type !== "initial") {
-    console.log("GroupDetails: Invalid group type", group);
-    return null;
-  }
 
   const [offLineData, setOffLineData] = useState("custom-bg");
-  const [timeRange, setTimeRange] = useState({ start: "08:00", end: "22:00" });
-  const [isTimeEnabled, setIsTimeEnabled] = useState(false);
-  const [toggleStates, setToggleStates] = useState({});
+  const [hasWorksHours, sethasWorksHours] = useState({});
+  const [keepPlayingStates, setKeepPlayingStates] = useState({});
+
   const { sendMessage } = useWebSocketContext();
 
-  const setToggleState = (groupId, state) => {
-    setToggleStates((prev) => ({ ...prev, [groupId]: state }));
+  useEffect(() => {
+    if (group.type === "initial") {
+      const updatedWorkHours = {}; // Temporary object to accumulate updates
+      group.data.forEach(({ hasTimePlay, uuid, timeStart, timeStop }) => {
+        updatedWorkHours[uuid] = { hasTimePlay, timeStart, timeStop };
+      });
 
+      sethasWorksHours(updatedWorkHours); // Update state once at the end
+    }
+  }, [group]);
+
+  const setKeepPlayingState = ({ uuid, isKeepPlaying }) => {
+    setKeepPlayingStates((prev) => ({ ...prev, [uuid]: isKeepPlaying }));
     if (sendMessage) {
       const message = {
         type: "toggle-update",
-        groupId,
-        state,
+        uuid,
+        isKeepPlaying,
       };
       sendMessage(message);
     }
   };
 
-  const setTimeRangeForGroup = (groupId, start, end) => {
-    setTimeRange((prev) => ({ ...prev, [groupId]: { start, end } }));
-    // if (sendMessage) {
-    //   const message = {
-    //     type: "time-range-update",
-    //     groupId,
-    //     start,
-    //     end,
-    //   };
-    //   sendMessage(message);
-    // }
+  const updateProp = (data) => {
+    const { uuid, ...updatedProps } = data;
+    sethasWorksHours((prev) => ({
+      ...prev,
+      [uuid]: {
+        ...prev[uuid],
+        ...updatedProps,
+      },
+    }));
   };
 
-  const handleIsTimeToggleEnable = (status) => {
-    setIsTimeEnabled(status);
+  const setEnableTimeWorkHour = (data) => {
+    const { hasTimePlay, uuid, timeStart, timeStop } = data;
+    if (sendMessage) {
+      const message = {
+        type: "time-range-update",
+        uuid,
+        timeStart,
+        timeStop,
+        hasTimePlay,
+      };
+      sendMessage(message);
+    }
   };
 
   useEffect(() => {
@@ -64,26 +78,16 @@ const GroupDetails = ({ group }) => {
           const { coordinator, members } = groupItem;
           const { roomName, state } = coordinator;
           const { volume, mute, playbackState } = state;
-          const toggleKey = groupItem.uuid;
-          const isToggled = groupItem.keepPlaying;
+          const uuid = groupItem.uuid;
+          const isKeepPlaying = groupItem.keepPlaying;
+          const deviceProps = hasWorksHours[uuid] || {};
+          const { timeStart, timeStop } = deviceProps;
+          console.log("start ", timeStart, " stop ", timeStop);
           const cardBodyClassZone = group.offLineData
             ? "custom-bg-offlineCard"
             : groupItem.offLineZone
             ? "custom-bg-offlineCard"
             : "custom-bg-2";
-
-          const [localTimeRange, setLocalTimeRange] = useState(timeRange);
-          const [localIsTimeEnabled, setLocalIsTimeEnabled] =
-            useState(isTimeEnabled);
-
-          const handleLocalTimeToggle = (status) => {
-            setLocalIsTimeEnabled(status);
-          };
-
-          const handleLocalTimeRangeChange = (start, end) => {
-            setLocalTimeRange({ start, end });
-            setTimeRangeForGroup(toggleKey, start, end);
-          };
 
           return (
             <div className="col custom-bg-4" key={index}>
@@ -104,20 +108,34 @@ const GroupDetails = ({ group }) => {
                   </CardText>
                   <ToggleSwitch
                     label="Always Keep Playing"
-                    defaultChecked={isToggled}
-                    onToggle={(newState) => setToggleState(toggleKey, newState)}
+                    defaultChecked={isKeepPlaying}
+                    onToggle={(isKeepPlaying) =>
+                      setKeepPlayingState({ uuid, isKeepPlaying })
+                    }
                   />
                   <ToggleSwitch
                     label="Audio System"
-                    defaultChecked={localIsTimeEnabled}
-                    onToggle={handleLocalTimeToggle}
+                    defaultChecked={deviceProps.hasTimePlay}
+                    onToggle={(hasTimePlay) =>
+                      updateProp({
+                        uuid: groupItem.uuid,
+                        hasTimePlay: hasTimePlay,
+                      })
+                    }
                   />
-                  {localIsTimeEnabled && (
+                  {deviceProps.hasTimePlay && (
                     <TimeRangeSelector
                       label="Select Time Range"
-                      defaultStart={localTimeRange.start}
-                      defaultEnd={localTimeRange.end}
-                      onTimeChange={handleLocalTimeRangeChange}
+                      defaultStart={deviceProps.timeStart}
+                      defaultEnd={deviceProps.timeStop}
+                      onTimeChange={(start, end) =>
+                        setEnableTimeWorkHour({
+                          uuid,
+                          timeStart: start,
+                          timeStop: end,
+                          hasTimePlay: deviceProps.hasTimePlay,
+                        })
+                      }
                     />
                   )}
                   <Table bordered responsive className="custom-bg-3">
@@ -131,8 +149,8 @@ const GroupDetails = ({ group }) => {
                     </thead>
                     <tbody className="custom-bg-4 custom-text-3">
                       {members && members.length > 0 ? (
-                        members.map((member) => (
-                          <tr key={member.uuid}>
+                        members.map((member, memberIndex) => (
+                          <tr key={member.uuid || `member-${memberIndex}`}>
                             <td className="custom-text-3">{member.roomName}</td>
                             <td className="custom-text-3">
                               {member.state.volume}
@@ -165,4 +183,3 @@ const GroupDetails = ({ group }) => {
 };
 
 export default GroupDetails;
-0;
