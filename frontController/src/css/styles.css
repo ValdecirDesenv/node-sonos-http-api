@@ -130,4 +130,13 @@ td {
   padding: 5rem;
 }
 
+.listDevices {
+  padding: 0.3rem;
+  text-align: left;
+  position: relative;
+  left: 0;
+  color: rgb(0, 119, 255);
+  font-size: 0.7rem;
+}
+
 /* --bs-gutter-x:2.5rem */

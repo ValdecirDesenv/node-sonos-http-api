@@ -9,9 +9,26 @@ interface Coordinator {
 
 interface Group {
   data: { nameRoom: string; coordinator: Coordinator }[];
+  devices: { [key: string]: string };
 }
 
 const Navbar: React.FC<{ group?: Group }> = ({ group }) => {
+  const [devices, setDevices] = useState<{ uuid: string; roomName: string }[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (group?.devices) {
+      const deviceArray = Object.entries(group.devices).map(
+        ([uuid, roomName]) => ({
+          uuid,
+          roomName,
+        })
+      );
+      setDevices(deviceArray);
+    }
+  }, [group?.devices]);
+
   return (
     <nav className="nav flex-column">
       <div className="container">
@@ -28,16 +45,19 @@ const Navbar: React.FC<{ group?: Group }> = ({ group }) => {
             <Link className="nav-link" to="/settings">
               {group && (
                 <ul className="nav flex-column">
-                  {Object.values(group.data).map((device, index) => (
-                    <li className="nav-item" key={index}>
-                      <Link
-                        className="nav-link"
-                        to={`/devices/${device.coordinator.roomName}`}
-                      >
-                        {device.coordinator.roomName}
-                      </Link>
-                    </li>
-                  ))}
+                  {devices
+                    .sort((a, b) => a.roomName.localeCompare(b.roomName))
+                    .map((device, index) => (
+                      <li className="listDevices" key={index}>
+                        <Link
+                          to={""}
+                          className="listDevices"
+                          // to={`/devices/${device.roomName}`}
+                        >
+                          {device.roomName}
+                        </Link>
+                      </li>
+                    ))}
                 </ul>
               )}
             </Link>

@@ -80,114 +80,120 @@ const GroupDetails = ({ group }) => {
   return (
     <div className={`container-fluid my-4 custom-bg ${offLineData}`}>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-        {Object.values(group.data).map((groupItem, index) => {
-          const { coordinator, members } = groupItem;
-          const { roomName, state } = coordinator;
-          const { volume, mute, playbackState } = state;
-          const uuid = groupItem.uuid;
-          console.log("Props hasWorksHours:", hasWorksHours[uuid]);
-          console.log("Props groupItem.hasTimePlay:", groupItem.hasTimePlay);
+        {Object.values(group.data)
+          .sort((a, b) =>
+            a.coordinator.roomName.localeCompare(b.coordinator.roomName)
+          )
+          .map((groupItem, index) => {
+            const { coordinator, members } = groupItem;
+            const { roomName, state } = coordinator;
+            const { volume, mute, playbackState } = state;
+            const uuid = groupItem.uuid;
+            console.log("Props hasWorksHours:", hasWorksHours[uuid]);
+            console.log("Props groupItem.hasTimePlay:", groupItem.hasTimePlay);
 
-          const isKeepPlaying = groupItem.keepPlaying;
-          const cardBodyClassZone = group.offLineData
-            ? "custom-bg-offlineCard"
-            : groupItem.offLineZone
-            ? "custom-bg-offlineCard"
-            : "custom-bg-2";
+            const isKeepPlaying = groupItem.keepPlaying;
+            const cardBodyClassZone = group.offLineData
+              ? "custom-bg-offlineCard"
+              : groupItem.offLineZone
+              ? "custom-bg-offlineCard"
+              : "custom-bg-2";
 
-          return (
-            <div className="col custom-bg-4" key={index}>
-              <Card className="h-100">
-                <CardBody className={cardBodyClassZone}>
-                  <CardTitle
-                    className="custom-text-1"
-                    tag="h5"
-                  >{`Group: ${roomName}`}</CardTitle>
-                  <CardText className="custom-text-1">
-                    <strong>Volume:</strong> {volume}
-                  </CardText>
-                  <CardText className="custom-text-1">
-                    <strong>Mute:</strong> {mute ? "Yes" : "No"}
-                  </CardText>
-                  <CardText className="custom-text-1">
-                    <strong>Playback State:</strong> {playbackState}
-                  </CardText>
-                  <ToggleSwitch
-                    label="Always Keep Playing"
-                    defaultChecked={isKeepPlaying}
-                    onToggle={(isKeepPlaying) =>
-                      setKeepPlayingState({ uuid, isKeepPlaying })
-                    }
-                  />
-
-                  <ToggleSwitch
-                    label="Audio System"
-                    defaultChecked={groupItem.hasTimePlay}
-                    onToggle={(hasTimePlay) => {
-                      updateProp({
-                        uuid: groupItem.uuid,
-                        hasTimePlay,
-                      });
-                      setEnableTimeWorkHour({
-                        uuid,
-                        hasTimePlay: hasTimePlay,
-                      });
-                    }}
-                  />
-                  {hasWorksHours[uuid]?.hasTimePlay && (
-                    <TimeRangeSelector
-                      label="Select Time Range"
-                      defaultStart={groupItem.timeStart}
-                      defaultEnd={groupItem.timeStop}
-                      onTimeChange={(start, end) =>
-                        setEnableTimeWorkHour({
-                          uuid,
-                          timeStart: start,
-                          timeStop: end,
-                          hasTimePlay: true,
-                        })
+            return (
+              <div className="col custom-bg-4" key={index}>
+                <Card className="h-100">
+                  <CardBody className={cardBodyClassZone}>
+                    <CardTitle
+                      className="custom-text-1"
+                      tag="h5"
+                    >{`Group: ${roomName}`}</CardTitle>
+                    <CardText className="custom-text-1">
+                      <strong>Volume:</strong> {volume}
+                    </CardText>
+                    <CardText className="custom-text-1">
+                      <strong>Mute:</strong> {mute ? "Yes" : "No"}
+                    </CardText>
+                    <CardText className="custom-text-1">
+                      <strong>Playback State:</strong> {playbackState}
+                    </CardText>
+                    <ToggleSwitch
+                      label="Always Keep Playing"
+                      defaultChecked={isKeepPlaying}
+                      onToggle={(isKeepPlaying) =>
+                        setKeepPlayingState({ uuid, isKeepPlaying })
                       }
                     />
-                  )}
-                  <Table bordered responsive className="custom-bg-3">
-                    <thead>
-                      <tr className="custom-bg-4">
-                        <th className="custom-text-3">Room</th>
-                        <th className="custom-text-3">Volume</th>
-                        <th className="custom-text-3">Mute</th>
-                        <th className="custom-text-3">Playback</th>
-                      </tr>
-                    </thead>
-                    <tbody className="custom-bg-4 custom-text-3">
-                      {members && members.length > 0 ? (
-                        members.map((member, memberIndex) => (
-                          <tr key={member.uuid || `member-${memberIndex}`}>
-                            <td className="custom-text-3">{member.roomName}</td>
-                            <td className="custom-text-3">
-                              {member.state.volume}
-                            </td>
-                            <td className="custom-text-3">
-                              {member.state.mute ? "Yes" : "No"}
-                            </td>
-                            <td className="custom-text-3">
-                              {member.state.playbackState}
+
+                    <ToggleSwitch
+                      label="Audio System"
+                      defaultChecked={groupItem.hasTimePlay}
+                      onToggle={(hasTimePlay) => {
+                        updateProp({
+                          uuid: groupItem.uuid,
+                          hasTimePlay,
+                        });
+                        setEnableTimeWorkHour({
+                          uuid,
+                          hasTimePlay: hasTimePlay,
+                        });
+                      }}
+                    />
+                    {hasWorksHours[uuid]?.hasTimePlay && (
+                      <TimeRangeSelector
+                        label="Select Time Range"
+                        defaultStart={groupItem.timeStart}
+                        defaultEnd={groupItem.timeStop}
+                        onTimeChange={(start, end) =>
+                          setEnableTimeWorkHour({
+                            uuid,
+                            timeStart: start,
+                            timeStop: end,
+                            hasTimePlay: true,
+                          })
+                        }
+                      />
+                    )}
+                    <Table bordered responsive className="custom-bg-3">
+                      <thead>
+                        <tr className="custom-bg-4">
+                          <th className="custom-text-3">Room</th>
+                          <th className="custom-text-3">Volume</th>
+                          <th className="custom-text-3">Mute</th>
+                          <th className="custom-text-3">Playback</th>
+                        </tr>
+                      </thead>
+                      <tbody className="custom-bg-4 custom-text-3">
+                        {members && members.length > 0 ? (
+                          members.map((member, memberIndex) => (
+                            <tr key={member.uuid || `member-${memberIndex}`}>
+                              <td className="custom-text-3">
+                                {member.roomName}
+                              </td>
+                              <td className="custom-text-3">
+                                {member.state.volume}
+                              </td>
+                              <td className="custom-text-3">
+                                {member.state.mute ? "Yes" : "No"}
+                              </td>
+                              <td className="custom-text-3">
+                                {member.state.playbackState}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="4" className="text-center">
+                              No members available
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="4" className="text-center">
-                            No members available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </CardBody>
-              </Card>
-            </div>
-          );
-        })}
+                        )}
+                      </tbody>
+                    </Table>
+                  </CardBody>
+                </Card>
+              </div>
+            );
+          })}
       </div>
     </div>
   );
