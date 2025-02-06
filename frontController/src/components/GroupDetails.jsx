@@ -14,19 +14,21 @@ const GroupDetails = ({ group }) => {
   const [offLineData, setOffLineData] = useState("custom-bg");
   const [hasWorksHours, sethasWorksHours] = useState({});
   const [keepPlayingStates, setKeepPlayingStates] = useState({});
-
   const { sendMessage } = useWebSocketContext();
 
   useEffect(() => {
-    if (group.type === "initial") {
-      const updatedWorkHours = {}; // Temporary object to accumulate updates
-      group.data.forEach(({ hasTimePlay, uuid, timeStart, timeStop }) => {
-        updatedWorkHours[uuid] = { hasTimePlay, timeStart, timeStop };
-      });
+    if (group.type === "initial" && group.data.length > 0) {
+      const updatedWorkHours = group.data.reduce(
+        (acc, { hasTimePlay, uuid, timeStart, timeStop }) => {
+          acc[uuid] = { hasTimePlay, timeStart, timeStop };
+          return acc;
+        },
+        {}
+      );
 
-      sethasWorksHours(updatedWorkHours); // Update state once at the end
+      sethasWorksHours(updatedWorkHours);
     }
-  }, [group]);
+  }, [group.data]);
 
   const setKeepPlayingState = ({ uuid, isKeepPlaying }) => {
     setKeepPlayingStates((prev) => ({ ...prev, [uuid]: isKeepPlaying }));
@@ -45,7 +47,7 @@ const GroupDetails = ({ group }) => {
     sethasWorksHours((prev) => ({
       ...prev,
       [uuid]: {
-        ...prev[uuid],
+        ...prev[uuid], // Preserve existing properties
         ...updatedProps,
       },
     }));
@@ -71,6 +73,10 @@ const GroupDetails = ({ group }) => {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("prop", hasWorksHours);
+  }, [hasWorksHours]);
+
   return (
     <div className={`container-fluid my-4 custom-bg ${offLineData}`}>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
@@ -79,10 +85,10 @@ const GroupDetails = ({ group }) => {
           const { roomName, state } = coordinator;
           const { volume, mute, playbackState } = state;
           const uuid = groupItem.uuid;
+          console.log("Props hasWorksHours:", hasWorksHours[uuid]);
+          console.log("Props groupItem.hasTimePlay:", groupItem.hasTimePlay);
+
           const isKeepPlaying = groupItem.keepPlaying;
-          const deviceProps = hasWorksHours[uuid] || {};
-          const { timeStart, timeStop } = deviceProps;
-          console.log("start ", timeStart, " stop ", timeStop);
           const cardBodyClassZone = group.offLineData
             ? "custom-bg-offlineCard"
             : groupItem.offLineZone
@@ -113,27 +119,32 @@ const GroupDetails = ({ group }) => {
                       setKeepPlayingState({ uuid, isKeepPlaying })
                     }
                   />
+
                   <ToggleSwitch
                     label="Audio System"
-                    defaultChecked={deviceProps.hasTimePlay}
-                    onToggle={(hasTimePlay) =>
+                    defaultChecked={groupItem.hasTimePlay}
+                    onToggle={(hasTimePlay) => {
                       updateProp({
                         uuid: groupItem.uuid,
+                        hasTimePlay,
+                      });
+                      setEnableTimeWorkHour({
+                        uuid,
                         hasTimePlay: hasTimePlay,
-                      })
-                    }
+                      });
+                    }}
                   />
-                  {deviceProps.hasTimePlay && (
+                  {hasWorksHours[uuid]?.hasTimePlay && (
                     <TimeRangeSelector
                       label="Select Time Range"
-                      defaultStart={deviceProps.timeStart}
-                      defaultEnd={deviceProps.timeStop}
+                      defaultStart={groupItem.timeStart}
+                      defaultEnd={groupItem.timeStop}
                       onTimeChange={(start, end) =>
                         setEnableTimeWorkHour({
                           uuid,
                           timeStart: start,
                           timeStop: end,
-                          hasTimePlay: deviceProps.hasTimePlay,
+                          hasTimePlay: true,
                         })
                       }
                     />
