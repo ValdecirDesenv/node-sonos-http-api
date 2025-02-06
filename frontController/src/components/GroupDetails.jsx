@@ -17,8 +17,8 @@ const GroupDetails = ({ group }) => {
   const { sendMessage } = useWebSocketContext();
 
   useEffect(() => {
-    if (group.type === "initial" && group.data.length > 0) {
-      const updatedWorkHours = group.data.reduce(
+    if (group.type === "initial") {
+      const updatedWorkHours = Object.values(group.data).reduce(
         (acc, { hasTimePlay, uuid, timeStart, timeStop }) => {
           acc[uuid] = { hasTimePlay, timeStart, timeStop };
           return acc;
@@ -80,7 +80,7 @@ const GroupDetails = ({ group }) => {
   return (
     <div className={`container-fluid my-4 custom-bg ${offLineData}`}>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-        {group.data.map((groupItem, index) => {
+        {Object.values(group.data).map((groupItem, index) => {
           const { coordinator, members } = groupItem;
           const { roomName, state } = coordinator;
           const { volume, mute, playbackState } = state;

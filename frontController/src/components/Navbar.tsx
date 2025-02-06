@@ -1,7 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useWebSocketContext } from "../hooks/WebSocketProvider";
+import { useEffect, useState } from "react";
 
-const Navbar = () => {
+interface Coordinator {
+  roomName: string;
+}
+
+interface Group {
+  data: { nameRoom: string; coordinator: Coordinator }[];
+}
+
+const Navbar: React.FC<{ group?: Group }> = ({ group }) => {
   return (
     <nav className="nav flex-column">
       <div className="container">
@@ -16,7 +26,20 @@ const Navbar = () => {
           </li>
           <li className="nav-item">
             <Link className="nav-link" to="/settings">
-              Settings 2
+              {group && (
+                <ul className="nav flex-column">
+                  {Object.values(group.data).map((device, index) => (
+                    <li className="nav-item" key={index}>
+                      <Link
+                        className="nav-link"
+                        to={`/devices/${device.coordinator.roomName}`}
+                      >
+                        {device.coordinator.roomName}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </Link>
           </li>
         </ul>
