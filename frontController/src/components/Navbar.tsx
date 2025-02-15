@@ -43,24 +43,24 @@ const Navbar: React.FC<{ group?: Group }> = ({ group }) => {
           </li>
           <li className="nav-item">
             <Link className="nav-link" to="/settings">
-              {group && (
-                <ul className="nav flex-column">
-                  {devices
-                    .sort((a, b) => a.roomName.localeCompare(b.roomName))
-                    .map((device, index) => (
-                      <li className="listDevices" key={index}>
-                        <Link
-                          to={""}
-                          className="listDevices"
-                          // to={`/devices/${device.roomName}`}
-                        >
-                          {device.roomName}
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              )}
+              Settings
             </Link>
+            {group && (
+              <ul className="nav flex-column">
+                {devices
+                  .sort((a, b) => a.roomName.localeCompare(b.roomName))
+                  .map((device, index) => (
+                    <li className="listDevices" key={index}>
+                      <Link
+                        to={`/devices/${device.roomName}`}
+                        className="listDevices"
+                      >
+                        {device.roomName}
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+            )}
           </li>
         </ul>
       </div>
