@@ -86,8 +86,13 @@ const GroupDetails = ({ group }) => {
           )
           .map((groupItem, index) => {
             const { coordinator, members } = groupItem;
-            const { roomName, state } = coordinator;
-            const { volume, mute, playbackState } = state;
+            const { roomName } = coordinator;
+            const { state } = members[0];
+            const {
+              volume = "unknown",
+              mute = false,
+              playbackState = "unknown",
+            } = state || {};
             const uuid = groupItem.uuid;
             console.log("Props hasWorksHours:", hasWorksHours[uuid]);
             console.log("Props groupItem.hasTimePlay:", groupItem.hasTimePlay);
@@ -135,6 +140,8 @@ const GroupDetails = ({ group }) => {
                         setEnableTimeWorkHour({
                           uuid,
                           hasTimePlay: hasTimePlay,
+                          timeStart: groupItem.timeStart,
+                          timeStop: groupItem.timeStop,
                         });
                       }}
                     />

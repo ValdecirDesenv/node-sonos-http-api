@@ -23,6 +23,7 @@ const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     let ws: WebSocket;
     let retryTimeout: NodeJS.Timeout;
+    let fetchInterval: NodeJS.Timeout;
 
     const connectWebSocket = () => {
       ws = new WebSocket("ws://localhost:3000");
@@ -36,6 +37,14 @@ const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
           .then((res) => res.json())
           .then((data) => setToggleStates(data))
           .catch((err) => console.error("Error fetching toggle states:", err));
+
+        // Start periodic fetching of toggle states every 10 seconds
+        fetchInterval = setInterval(() => {
+          fetch("/api/toggle-states")
+            .then((res) => res.json())
+            .then((data) => setToggleStates(data))
+            .catch((err) => console.error("Error fetching toggle states:", err));
+        }, 10000); 
       };
 
       ws.onmessage = (event) => {
@@ -49,6 +58,7 @@ const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
       ws.onclose = () => {
         console.warn("WebSocket connection closed. Retrying...");
+        clearTimeout(fetchInterval); 
         retryTimeout = setTimeout(connectWebSocket, 3000); // Retry in 3 seconds
       };
     };
@@ -58,6 +68,7 @@ const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       ws?.close();
       clearTimeout(retryTimeout);
+      clearInterval(fetchInterval); // Clear the interval on cleanup
     };
   }, []);
 
