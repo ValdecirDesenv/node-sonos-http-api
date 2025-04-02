@@ -24,12 +24,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>(
     {}
   );
-
   const socketRef = useRef<WebSocket | null>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let retryTimeout: NodeJS.Timeout;
-
     const connectWebSocket = () => {
       const ws = new WebSocket("ws://localhost:3000");
       socketRef.current = ws;
@@ -41,7 +39,16 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       ws.onmessage = (event) => {
         console.log("WebSocket message received:", event.data);
         try {
-          setMessages((prev) => [...prev, JSON.parse(event.data)]);
+          const payload = JSON.parse(event.data);
+          console.log("Parsed payload:", payload);
+
+          if (payload.toggleStates) {
+            console.log("Updating toggleStates:", payload.toggleStates);
+            setToggleStates(payload.toggleStates);
+          } else {
+            console.log("Adding new message to messages array.");
+            setMessages((prev) => [...prev, payload]);
+          }
         } catch (err) {
           console.error("Error parsing WebSocket message:", err);
         }
@@ -53,7 +60,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
       ws.onclose = () => {
         console.warn("WebSocket connection closed. Retrying...");
-        retryTimeout = setTimeout(connectWebSocket, 3000);
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+        }
+        retryTimeoutRef.current = setTimeout(connectWebSocket, 3000); // Retry in 3 seconds
       };
     };
 
@@ -61,13 +71,12 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       socketRef.current?.close();
-      clearTimeout(retryTimeout);
+      clearTimeout(retryTimeoutRef.current);
     };
   }, []);
 
   const sendMessage = (msg: any) => {
     const socket = socketRef.current;
-
     if (socket && socket.readyState === WebSocket.OPEN) {
       console.log("Sending message:", msg);
       socket.send(JSON.stringify(msg));
@@ -98,7 +107,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useWebSocketContext = () => {
   const context = useContext(WebSocketContext);
   if (!context) {
-    throw new Error("useWebSocket must be used within a WebSocketProvider");
+    throw new Error(
+      "useWebSocketContext must be used within a WebSocketProvider"
+    );
   }
   return context;
 };
