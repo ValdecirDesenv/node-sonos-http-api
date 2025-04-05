@@ -10,7 +10,7 @@ const GroupDetails = ({ group }) => {
   if (!group || !group.data || group.data.length === 0) {
     return <div>Loading...</div>;
   }
-
+  debugger;
   const [offLineData, setOffLineData] = useState("custom-bg");
   const [hasWorksHours, sethasWorksHours] = useState({});
   const [keepPlayingStates, setKeepPlayingStates] = useState({});
@@ -57,7 +57,7 @@ const GroupDetails = ({ group }) => {
     const { hasTimePlay, uuid, timeStart, timeStop } = data;
     if (sendMessage) {
       const message = {
-        type: "time-range-update",
+        type: "timeFrameUpdate",
         uuid,
         timeStart,
         timeStop,
@@ -87,7 +87,7 @@ const GroupDetails = ({ group }) => {
           .map((groupItem, index) => {
             const { coordinator, members } = groupItem;
             const { roomName } = coordinator;
-            const { state } = members[0];
+            const { state } = members?.[0] || {};
             const {
               volume = "unknown",
               mute = false,
@@ -98,16 +98,15 @@ const GroupDetails = ({ group }) => {
             console.log("Props groupItem.hasTimePlay:", groupItem.hasTimePlay);
 
             const isKeepPlaying = groupItem.keepPlaying;
-            const cardBodyClassZone = group.offLineData
-              ? "custom-bg-offlineCard"
-              : groupItem.offLineZone
-              ? "custom-bg-offlineCard"
-              : "custom-bg-2";
+            const cardConnectionStatus =
+              groupItem.connectionStatus === "online"
+                ? "custom-bg-onLineCard"
+                : "custom-bg-offLineCard";
 
             return (
               <div className="col custom-bg-4" key={index}>
-                <Card className="h-100">
-                  <CardBody className={cardBodyClassZone}>
+                <Card className={`card ${cardConnectionStatus} custom-card`}>
+                  <CardBody>
                     <CardTitle
                       className="custom-text-1"
                       tag="h5"

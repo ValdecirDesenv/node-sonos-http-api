@@ -9,7 +9,13 @@ interface Coordinator {
 
 interface Group {
   data: { nameRoom: string; coordinator: Coordinator }[];
-  devices: { [key: string]: string };
+  devices: {
+    uuid: string;
+    roomName: string;
+    state: string;
+    volume: number;
+    mute: boolean;
+  }[];
 }
 
 const Navbar: React.FC<{ group?: Group }> = ({ group }) => {
@@ -19,12 +25,10 @@ const Navbar: React.FC<{ group?: Group }> = ({ group }) => {
 
   useEffect(() => {
     if (group?.devices) {
-      const deviceArray = Object.entries(group.devices).map(
-        ([uuid, roomName]) => ({
-          uuid,
-          roomName,
-        })
-      );
+      const deviceArray = group.devices.map((device) => ({
+        uuid: device.uuid,
+        roomName: device.roomName,
+      }));
       setDevices(deviceArray);
     }
   }, [group?.devices]);

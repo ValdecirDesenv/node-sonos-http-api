@@ -40,8 +40,11 @@ p {
   color: #555;
 }
 
-.custom-bg-offlineCard {
-  background-color: rgb(121, 98, 69);
+.card.custom-bg-onLineCard {
+  background-color: rgb(53, 87, 86) !important;
+}
+.card.custom-bg-offLineCard {
+  background-color: rgb(87, 52, 8) !important;
 }
 .custom-bg {
   background-color: rgb(77, 135, 134);

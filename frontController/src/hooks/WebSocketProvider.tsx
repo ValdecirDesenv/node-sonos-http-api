@@ -37,13 +37,13 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       ws.onmessage = (event) => {
-        console.log("WebSocket message received:", event.data);
+        console.log("WebSocket message received:");
         try {
           const payload = JSON.parse(event.data);
           console.log("Parsed payload:", payload);
 
           if (payload.toggleStates) {
-            console.log("Updating toggleStates:", payload.toggleStates);
+            console.log("Updating toggleStates:");
             setToggleStates(payload.toggleStates);
           } else {
             console.log("Adding new message to messages array.");
@@ -78,7 +78,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const sendMessage = (msg: any) => {
     const socket = socketRef.current;
     if (socket && socket.readyState === WebSocket.OPEN) {
-      console.log("Sending message:", msg);
+      console.log("Sending message:");
       socket.send(JSON.stringify(msg));
     } else {
       console.error("WebSocket is not open. Message not sent:", msg);
