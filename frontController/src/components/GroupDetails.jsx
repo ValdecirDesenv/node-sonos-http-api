@@ -55,7 +55,7 @@ const GroupDetails = ({ group }) => {
     setKeepPlayingStates((prev) => ({ ...prev, [uuid]: isKeepPlaying }));
     if (sendMessage) {
       const message = {
-        type: "toggle-update",
+        type: "keepPlayerUpdate",
         uuid,
         isKeepPlaying,
       };
@@ -146,7 +146,7 @@ const GroupDetails = ({ group }) => {
                     />
 
                     <ToggleSwitch
-                      label="Audio System"
+                      label="Audio TimeFrame"
                       defaultChecked={groupItem.hasTimePlay}
                       onToggle={(hasTimePlay) => {
                         updateProp({
