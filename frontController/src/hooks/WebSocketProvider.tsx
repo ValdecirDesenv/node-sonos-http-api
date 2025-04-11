@@ -29,7 +29,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const connectWebSocket = () => {
-      const ws = new WebSocket("ws://localhost:3000");
+      const ws = new WebSocket("ws://localhost:3000/?client=sonosWhachdog");
       socketRef.current = ws;
 
       ws.onopen = () => {
@@ -47,7 +47,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setToggleStates(payload.toggleStates);
           } else {
             console.log("Adding new message to messages array.");
-            setMessages((prev) => [...prev, payload]);
+            setMessages((prev) => [payload]);
           }
         } catch (err) {
           console.error("Error parsing WebSocket message:", err);

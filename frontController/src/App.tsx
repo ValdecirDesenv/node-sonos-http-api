@@ -17,7 +17,7 @@ const App: React.FC = () => {
   const { messages } = useWebSocketContext();
 
   useEffect(() => {
-    console.log("WebSocket Messages To NavBar:", messages);
+    console.log("WebSocket Messages To App:", messages);
   }, [messages]);
 
   useEffect(() => {
